@@ -1,0 +1,276 @@
+<DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Login + Dashboard</title>
+  <style>
+    body {margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;background:#f3f8fc;}
+    #app-content {display:none;}
+    .sidebar {
+      width:205px;min-height:100vh;background:#143768;color:#fff;position:fixed;left:0;top:0;display:flex;flex-direction:column;align-items:center;box-shadow:2px 0 6px rgba(0,0,0,0.04);z-index:101;
+    }
+    .profile-section {margin-top:33px;margin-bottom:15px;display:flex;flex-direction:column;align-items:center;}
+    .profile-pic {width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid #fff;margin-bottom:8px;background:#fff;}
+    .profile-name {font-size:15.5px;font-weight:bold;color:#fde973;letter-spacing:0.9px;}
+    .profile-photo-actions {margin-bottom:10px;display:flex;gap:8px;}
+    .sidebar ul {list-style:none;padding-left:0;width:100%;margin-top:24px;}
+    .sidebar ul li {padding:12px 22px;color:#fff;font-size:14px;margin-bottom:2px;cursor:pointer;border-left:4px solid transparent;transition:background 0.2s,color 0.2s,border-color 0.2s;}
+    .sidebar ul li:hover,.sidebar ul li.active {background:#215296;color:#fde973;border-left:4px solid #fde973;}
+    .main-content {margin-left:205px;min-height:100vh;padding:27px 19px;background:#f3f8fc;transition:margin-left 0.18s;}
+    .section {display:none;}
+    .section.active {display:block;}
+    .content-box {
+      background:#fff;
+      border-radius:11px;
+      box-shadow:0 2px 9px rgba(56,98,188,0.13);
+      padding:32px 35px;margin:30px auto;
+      max-width:460px;
+      font-size:18px;
+      color:#23458a;
+      font-weight:500;
+      letter-spacing:0.2px;
+      line-height:1.6;
+      border-left:6px solid #215296;
+    }
+    .content-box h2 {color:#215296;margin-top:0;border-bottom:1.5px solid #e2e8f5;padding-bottom:7px;font-size:23px;}
+    .content-box ul {list-style:square;margin-left:20px;}
+    .feedback-form label {display:block;margin-top:14px;margin-bottom:2px;}
+    .feedback-form input,.feedback-form textarea {width:93%;padding:7px 8px;margin-bottom:8px;border-radius:4px;border:1px solid #215296;font-size:15px;}
+    .feedback-form textarea {min-height:50px;}
+    .feedback-form button {margin-top:9px;padding:7px 16px;background:#215296;color:#fde973;border:none;border-radius:5px;font-size:15px;cursor:pointer;font-weight:bold;}
+    .feedback-form button:hover {background:#fde973;color:#1a3869;}
+    .photo-btn {
+      font-size:13px;padding:6px 13px;border-radius:6px;border:none;cursor:pointer;color:#215296;background:#f2f6fb;font-weight:600;transition:background 0.2s;
+    }
+    .photo-btn:hover {background:#cde2fa;color:#143768;}
+    #login-page {width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#e6f0ff 5%,#f7fbfe 85%);position:fixed;top:0;left:0;z-index:9999;}
+    .login-box {background:#fff;box-shadow:0 8px 32px rgb(44 84 150 / 14%);border-radius:18px;padding:36px 46px 33px 46px;min-width:300px;max-width:94vw;display:flex;flex-direction:column;align-items:center;}
+    .login-heading {font-size:1.8rem;font-weight:bold;color:#215296;margin-bottom:23px;}
+    .login-box label {font-size:16px;color:#184687;margin-bottom:5px;font-weight:500;text-align:left;width:100%;}
+    .login-box input {width:100%;padding:9px 11px;border-radius:7px;margin-bottom:16px;border:1.6px solid #d0e3fa;font-size:15px;background:#eef4fd;}
+    .login-box input:focus {border:1.7px solid #215296;outline:none;}
+    .login-btn {padding:10px 34px;background:linear-gradient(135deg,#2874f8 50%,#317ee3 100%);color:#fde973;font-size:16.5px;font-weight:700;border:none;border-radius:7px;cursor:pointer;letter-spacing:1px;margin-top:6px;box-shadow:0 2px 9px #adc1f5;}
+    .login-btn:hover {background:#184687;color:#fffdf8;}
+    .login-error {color:#d11a2a;font-size:16px;margin:8px 0 0 0;}
+    /* Cube/Rectangle 3D Boxes Styling */
+    .cube-container {
+      margin-top: 30px;
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+    .cube-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #215296;
+      font-weight: bold;
+      font-size: 18px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 6px 6px 12px #a1b5d8, -6px -6px 12px #ffffff;
+      border-radius: 10px;
+    }
+    .cube-box-3d {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(145deg, #e3eaff, #c1d9ff);
+      perspective: 800px;
+    }
+    .rectangle-box {
+      width: 160px;
+      height: 80px;
+      background: linear-gradient(145deg, #d7e3ff, #aac3ff);
+    }
+    .cube-box:hover {
+      transform: scale(1.1) translateZ(20px);
+      box-shadow: 10px 10px 20px #a1b5d8, -10px -10px 20px #ffffff;
+    }
+    @media (max-width:700px) {
+      .sidebar{width:100vw;min-height:50px;flex-direction:row;padding:0;position:relative;}
+      .main-content{margin-left:0;padding:10px;}
+      .profile-section{margin:0 6px 0 0;}
+      .sidebar ul{flex-direction:row;display:flex;width:auto;margin:0;}
+      .sidebar ul li{margin-bottom:0;margin-right:6px;padding:8px 11px;font-size:12px;border-left:none;}
+      .sidebar ul li:hover,.sidebar ul li.active{border-left:none;border-bottom:3px solid #fde973;}
+    }
+  </style>
+</head>
+<body>
+  <!-- LOGIN PAGE FIRST -->
+  <div id="login-page">
+    <form class="login-box" onsubmit="event.preventDefault();loginUser();">
+      <div class="login-heading">User Login</div>
+      <label>Email ID</label>
+      <input type="email" id="email" required placeholder="Enter your email">
+      <label>Password</label>
+      <input type="password" id="password" required placeholder="Enter your password">
+      <button class="login-btn" type="submit">Login</button>
+      <div id="loginError" class="login-error"></div>
+    </form>
+  </div>
+  <div id="app-content">
+    <div class="sidebar">
+      <div class="profile-section">
+        <img id="profilePic" src="" class="profile-pic" alt="Profile Photo">
+        <div class="profile-name">Raja Kumar</div>
+        <div class="profile-photo-actions">
+          <label class="photo-btn">
+            Upload
+            <input type="file" id="fileUpload" accept="image/*" style="display:none;" onchange="changePhoto(event)">
+          </label>
+          <button class="photo-btn" onclick="deletePhoto()">Delete</button>
+        </div>
+      </div>
+      <ul id="nav">
+        <li class="active" data-section="dashboard">Dashboard</li>
+        <li data-section="profile">Profile</li>
+        <li data-section="home">Home</li>
+        <li data-section="about">About</li>
+        <li data-section="projects">Projects</li>
+        <li data-section="contact">Contact</li>
+        <li data-section="habit">Favourite Bike</li>
+        <li data-section="favCar">Favourite Car</li>
+        <li data-section="favFood">Favourite Khana</li>
+        <li data-section="feedback">Feedback</li>
+      </ul>
+    </div>
+    <div class="main-content">
+      <!-- Dashboard and sections -->
+      <div id="dashboard" class="section active">
+        <div class="content-box">
+          <h2>Dashboard</h2>
+          <ul>
+            <li><b>Hobby:</b> Cricket, Coding</li>
+            <li><b>Dream:</b> Software Engineer, IITian</li>
+            <li><b>Favourite Subject:</b> Computer Science</li>
+          </ul>
+        </div>
+      </div>
+      <div id="profile" class="section">
+        <div class="content-box">
+          <h2>Profile</h2>
+          Name: Raja Kumar <br>
+          Field: Computer Engineering <br>
+          Department: IT
+        </div>
+      </div>
+      <div id="home" class="section">
+        <div class="content-box">
+          <h2>Home</h2>
+          Welcome to my University!
+        </div>
+      </div>
+      <div id="about" class="section">
+        <div class="content-box">
+          <h2>About</h2>
+          <ul>
+            <li>Class 1–10: CBSE Board</li>
+            <li>Class 11–12: NIT Patna</li>
+            <li>Graduation: Kalinga University</li>
+          </ul>
+        </div>
+      </div>
+      <div id="projects" class="section">
+        <div class="content-box">
+          <h2>Projects</h2>
+          <ul>
+            <li>Amazon Clone</li>
+            <li>Attendance App</li>
+            <li>Portfolio Website</li>
+            <li>Alarm App</li>
+          </ul>
+        </div>
+      </div>
+      <div id="contact" class="section">
+        <div class="content-box">
+          <h2>Contact</h2>
+          Phone: 9955 843026 <br>
+          Email: RajaKumar@gmail.com
+        </div>
+      </div>
+      <div id="habit" class="section">
+        <div class="content-box">
+          <h2>Hobby Bike</h2>
+          Java
+        </div>
+      </div>
+      <div id="favCar" class="section">
+        <div class="content-box">
+          <h2>Favourite Car</h2>
+          Lamborghini
+        </div>
+      </div>
+      <div id="favFood" class="section">
+        <div class="content-box">
+          <h2>Favourite Khana</h2>
+          Aalu Paratha
+        </div>
+      </div>
+      <div id="feedback" class="section">
+        <div class="content-box">
+          <h2>Feedback</h2>
+          <form class="feedback-form" onsubmit="event.preventDefault();alert('Your feedback submitted!');this.reset();">
+            <label>Your Name
+              <input type="text" required>
+            </label>
+            <label>Your Feedback
+              <textarea rows="3" required></textarea>
+            </label>
+            <button type="submit">Send Feedback</button>
+          </form>
+        </div>
+      </div>
+      <!--BOXXX-->
+      <div class="cube-container">
+        <div class="cube-box rectangle-box">Boss</div>
+        <div class="cube-box cube-box-3d">Hobby</div>
+        <div class="cube-box rectangle-box">Resume</div>
+        <div class="cube-box cube-box-3d">Gallery</div>
+        <div class="cube-box rectangle-box"></div> <!-- khaali -->
+        <div class="cube-box cube-box-3d"></div>   <!-- khaali -->
+      </div>
+    </div>
+  </div>
+  <script>
+    function loginUser() {
+      var email = document.getElementById('email').value.trim();
+      var pass = document.getElementById('password').value.trim();
+      var error = document.getElementById('loginError');
+      if(email === "user@example.com" && pass === "12345") {
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
+        error.textContent = '';
+      } else {
+        error.textContent = "Invalid Email or Password. (Try user@example.com / 12345)";
+      }
+    }
+    const menu = document.querySelectorAll('.sidebar ul li');
+    const sections = document.querySelectorAll('.section');
+    menu.forEach(item=>{
+      item.onclick = function(){
+        menu.forEach(m=>m.classList.remove('active'));
+        this.classList.add('active');
+        sections.forEach(sec=>sec.classList.remove('active'));
+        document.getElementById(this.getAttribute('data-section')).classList.add('active');
+      }
+    });
+    function changePhoto(event){
+      const input = event.target;
+      const file = input.files[0];
+      if(file){
+        const reader = new FileReader();
+        reader.onload = function(e){
+          document.getElementById('profilePic').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+    function deletePhoto(){
+      document.getElementById('profilePic').src = 'RAJA.jpeg'; // default avatar on delete (change as needed)
+    }
+  </script><script src="SCRIPT.JS</body>
+</html>
